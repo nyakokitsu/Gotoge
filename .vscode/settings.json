@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "Gotoge",
+            "database": "${workspaceFolder:Gotoge}/database.db"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}
