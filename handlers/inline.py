@@ -3,11 +3,13 @@ from typing import Optional
 from aiogram import Router, F, html
 from aiogram.types import InlineQuery, \
     InputTextMessageContent, \
-    InlineQueryResultCachedPhoto
+    InlineQueryResultCachedPhoto, InlineQueryResultArticle
 
 from storage import get_images_by_id
 
 router = Router()
+
+
 
 @router.inline_query(F.query == "")
 async def show_user_images(inline_query: InlineQuery):
@@ -19,8 +21,21 @@ async def show_user_images(inline_query: InlineQuery):
             photo_file_id=file_id
         ))
     # Важно указать is_personal=True!
-    await inline_query.answer(
-        results, is_personal=True,
-        switch_pm_text="Добавить ещё »»",
-        switch_pm_parameter="add"
-    )
+    if (len(results) > 0):
+        await inline_query.answer(
+            results, is_personal=True,
+            switch_pm_text="Добавить ещё »»",
+            switch_pm_parameter="add"
+        )
+    else:
+        await inline_query.answer(
+            [InlineQueryResultArticle(
+            id="0",
+            title="Как-то пустовато...",
+            description="Добавьте сюда что-нибудь",
+            input_message_content=InputTextMessageContent(
+                message_text="<a href='https://t.me/gtgebot?start=add'>Добавьте новую картинку!</a>",
+                parse_mode="HTML"
+            )
+        )], is_personal=True,
+        )

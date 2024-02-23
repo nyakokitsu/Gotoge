@@ -29,8 +29,10 @@ dp = Dispatcher(storage=MemoryStorage())
 @dp.message(CommandStart())
 async def command_start_handler(message: Message, command: CommandObject) -> None:
     args = command.args
-    await message.reply(args)
-    await message.answer("<i>Добро пожаловать, {}!</i>\nЯ бот для хранения и быстрого всех твоих файлов прямо в Telegram - фото и видео.\nЧтобы добавить файл в ваши сохраненные медиа просто перешлите его мне.\n\n<i>Отказ от ответственности: пожайлуста не изпользуйте бота для спама или рассылок запрещенных правилами Telegram файлов. Пользуясь этим ботом, вы принимаете <a href='https://gotoge.nyako.tk/tos'>условия пользования ботом</a>.</i>".format(hbold(message.from_user.full_name)))
+    if (args == "add"):
+        await message.reply("<i>Просто перешлите картинку мне.</i>")
+    else:
+        await message.answer("<i>Добро пожаловать, {}!</i>\nЯ бот для хранения и быстрого всех твоих мемов прямо в Telegram!\nЧтобы добавить файл в ваши сохраненные мемы просто перешлите его мне, а чтобы отправить его пропишите <code>@gtgebot</code> в нужном чате.".format(hbold(message.from_user.full_name))) #<i>Отказ от ответственности: пожайлуста не изпользуйте бота для спама или рассылок запрещенных правилами Telegram файлов. Пользуясь этим ботом, вы принимаете <a href='https://gotoge.nyako.tk/tos'>условия пользования ботом</a>.</i>
 
 
 """
