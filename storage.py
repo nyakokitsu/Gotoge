@@ -16,8 +16,14 @@ def init_db():
                                 photo_file_id TEXT NOT NULL,
                                 photo_unique_id text NOT NULL UNIQUE,
                                 added_at datetime);'''
+    sqlite_create_table_users_query = '''CREATE TABLE users (
+                                uid INTEGER NOT NULL UNIQUE,
+                                ref TEXT,
+                                added_at datetime);'''
     cursor.execute(sqlite_create_table_query)
+    cursor.execute(sqlite_create_table_users_query)
     sqlite_connection.commit()
+
 
 
 def close_connection():
@@ -45,6 +51,38 @@ def add_photo(
     except sqlite3.IntegrityError:
         return False
 
+def create_user(telegram_id: int, ref: str = "") -> list[str]:
+    """
+    Сохраняет юзера
+
+    :param telegram_id: ID юзера в Telegram
+    :return:
+    """
+    insert_data = f"""INSERT INTO users (uid, ref, added_at) VALUES ({telegram_id}, '{ref}', '{datetime.datetime.now()}');"""
+    try:
+        cursor.executescript(insert_data)
+        sqlite_connection.commit()
+        return True
+    except sqlite3.IntegrityError:
+        return False
+
+def is_user_already_exists(telegram_id: int) -> bool:
+    """
+    Проверяет существование пользователя
+
+    :param telegram_id: ID юзера в Telegram
+    :return:
+    """
+    
+    sqlite_select_query = """SELECT (uid) from users where uid = {}"""
+    cursor.execute(sqlite_select_query.format(telegram_id))
+    records = cursor.fetchall()
+    #print("Всего строк:  ", len(records))
+    if len(records) > 0:
+        return True
+    else:
+        return False
+    
 
 
 def get_images_by_id(telegram_id: int) -> list[str]:
@@ -58,35 +96,32 @@ def get_images_by_id(telegram_id: int) -> list[str]:
     sqlite_select_query = """SELECT * from gotoge where uid = {}"""
     cursor.execute(sqlite_select_query.format(telegram_id))
     records = cursor.fetchall()
-    print("Всего строк:  ", len(records))
+    #print("Всего строк:  ", len(records))
     results = []
     for row in records:
         results.append(row[1])
     return results
 
-
-def delete_link(telegram_id: int, link: str):
-    """
-    Удаляет ссылку
-
-    :param telegram_id: ID юзера в Telegram
-    :param link: ссылка
-    """
-    if telegram_id in data:
-        if "links" in data[telegram_id]:
-            if link in data[telegram_id]["links"]:
-                del data[telegram_id]["links"][link]
+"""
+def users_migr():
+    select = "SELECT DISTINCT (uid) FROM gotoge;"
+    cursor.execute(select)
+    records = cursor.fetchall()
+    for rec in records:
+        insert_data = f"INSERT INTO users (uid, ref, added_at) VALUES ({rec[0]}, '', '{datetime.datetime.now()}');"
+        cursor.executescript(insert_data)
+        sqlite_connection.commit()
+"""
 
 
-def delete_image(telegram_id: int, photo_file_unique_id: str):
+def delete_image(telegram_id: int, photo_file_unique_id: str) -> bool:
     """
     Удаляет изображение
 
     :param telegram_id: ID юзера в Telegram
     :param photo_file_unique_id: file_unique_id изображения для удаления
     """
-    if telegram_id in data and "images" in data[telegram_id]:
-        for index, (_, unique_id) in enumerate(data[telegram_id]["images"]):
-            if unique_id == photo_file_unique_id:
-                data[telegram_id]["images"].pop(index)
+    sqlite_select_query = """DELETE from gotoge WHERE uid = {} AND photo_unique_id = '{}'"""
+    cursor.execute(sqlite_select_query.format(telegram_id, photo_file_unique_id))
+    sqlite_connection.commit()
 

@@ -1,0 +1,3 @@
+SELECT DISTINCT uid FROM gotoge;
+DELETE from users WHERE uid = 5392405302;
+SELECT * FROM users;
