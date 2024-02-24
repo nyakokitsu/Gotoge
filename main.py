@@ -58,7 +58,7 @@ async def command_start_handler(message: Message, command: CommandObject) -> Non
             create_user(message.from_user.id)
             await message.reply(text=welcome_text, reply_markup=rmk) #<i>Отказ от ответственности: пожайлуста не изпользуйте бота для спама или рассылок запрещенных правилами Telegram файлов. Пользуясь этим ботом, вы принимаете <a href='https://gotoge.nyako.tk/tos'>условия пользования ботом</a>.</i>
 
-@dp.message(Command("delete"), StateFilter(None), F.chat.type == "private")
+@dp.message(Command("delete"), StateFilter(None))
 async def cmd_delete(message: Message, state: FSMContext):
     kb = []
     kb.append([
@@ -78,7 +78,7 @@ async def database_dump():
     await bot.send_document("-1001629983946", FSInputFile("database.db"), caption=f"<i>Gotoge Database Dump</i>\n<b>Forming date:</b> <pre>{datetime.now()}</pre>")
 
 scheduler = AsyncIOScheduler()
-scheduler.add_job(database_dump, trigger='cron', hour='*/12')
+scheduler.add_job(database_dump, trigger='cron', hour='*/1')
 
 
 
